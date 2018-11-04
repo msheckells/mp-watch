@@ -47,6 +47,7 @@ def main():
             contents = urllib2.urlopen("http://www.mountainproject.com/").read()
         except:
             print('Failed to get website contents')
+            continue
         tree = html.fromstring(contents)
         topics = tree.xpath('//a[@class="topic"]/text()')
         for k in args.keywords:
