@@ -6,11 +6,12 @@ from sets import Set
 import Tkinter as tk
 import ttk
 import smtplib
+from threading import Thread
 
 NORM_FONT= ("Verdana", 10)
 
 def send_popup_notification(t):
-    msg = 'Hi, Michael!  Hope you\'re having a wonderful day.  The topic \'' + t + '\' was just posted to the MP forums.'
+    msg = 'Hi, Michael!  Hope you\'re having a wonderful day.  The topic \'' + t + '\' was just posted to the MP forums.'.encode('ascii', 'ignore')
     popup = tk.Tk()
     popup.wm_title("!")
     label = ttk.Label(popup, text=msg, font=NORM_FONT)
@@ -18,17 +19,17 @@ def send_popup_notification(t):
     B1 = ttk.Button(popup, text="Thanks, Matt", command = popup.destroy)
     B1.pack()
     popup.mainloop()
-    print(t)
+    print('Closed popup')
 
 def send_email_notification(t, username, password, toaddr):
-    msg = 'Hi Michael!  Hope you\'re having a wonderful day.  The topic \'' + t + '\' was just posted to the MP forums.'
+    msg = 'Hi Michael!  Hope you\'re having a wonderful day.  The topic \'' + t + '\' was just posted to the MP forums.'.encode('ascii', 'ignore')
 
     server = smtplib.SMTP('smtp.gmail.com:587')
     server.starttls()
     server.login(username, password)
     server.sendmail(username, toaddr, msg)
     server.quit()
-    print(t)
+    print('Sent email notification')
 
 def main():
     parser = argparse.ArgumentParser(description='Keep Michael productive without missing great deals.')
@@ -53,12 +54,14 @@ def main():
         for k in args.keywords:
             for t in topics:
                 if k.lower() in t.lower() and t not in sent_topics:
-                    send_popup_notification(t)
+                    thread = Thread(target = send_popup_notification, args = (t, ))
+                    thread.start()
                     if args.send_email is True:
                         if not ( args.email is not None and args.password is not None and args.to_addr is not None):
                             print 'Michael... you need to give your email account info to send an email notification'
                             return
                         send_email_notification(t, args.email, args.password, args.to_addr)
+                    print(t)
                     sent_topics.add(t)
         time.sleep(args.time_interval)
 
