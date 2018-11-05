@@ -24,7 +24,7 @@ def send_popup_notification(t):
 def send_email_notification(t, username, password, toaddr):
     msg = 'Hi Michael!  Hope you\'re having a wonderful day.  The topic \'' + t + '\' was just posted to the MP forums.'.encode('ascii', 'ignore')
 
-    server = smtplib.SMTP('smtp.gmail.com:587')
+    server = smtplib.SMTP('smtp.gmail.com:587', timeout=10)
     server.starttls()
     server.login(username, password)
     server.sendmail(username, toaddr, msg)
@@ -45,7 +45,11 @@ def main():
 
     while True:
         try:
-            contents = urllib2.urlopen("http://www.mountainproject.com/").read()
+            url = "http://www.mountainproject.com/"
+            request = urllib2.Request(url)
+            request.add_header('User-Agent', 'Mozilla/5.0')
+            request.add_header('Pragma', 'no-cache')
+            contents = urllib2.build_opener().open(request).read()
         except:
             print('Failed to get website contents')
             continue
