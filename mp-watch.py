@@ -27,7 +27,11 @@ def send_email_notification(t, username, password, toaddr):
     server = smtplib.SMTP('smtp.gmail.com:587', timeout=10)
     server.starttls()
     server.login(username, password)
-    server.sendmail(username, toaddr, msg)
+    try:
+        server.sendmail(username, toaddr, msg)
+    except:
+        print('Error sending email')
+        return
     server.quit()
     print('Sent email notification')
 
